@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Home</title>
+</head>
+<body>
+  <div>
+    <form method="post">
+      <input type="number" name="number1" />
+      <input type="number" name="number2" />
+      <button type="submit" formaction="/add">Add</button>
+      <button type="submit" formaction="/subtract">Subtract</button>
+    </form>
+
+    <div id="answer"></div>
+  </div>
+</body>
+<script>
+  const form = document.querySelector('form');
+  const answer = document.querySelector('#answer');
+
+  const getFormData = (form) => {
+    const formData = new FormData(form);
+    formData.set('number1', formData.get('number1') || 0);
+    formData.set('number2', formData.get('number2') || 0);
+    return formData;
+  };
+
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const action = event.submitter.getAttribute('formaction');
+    const formData = getFormData(form);
+
+    fetch(action, {
+      method: 'POST',
+      body: new URLSearchParams(formData)
+    }).then(async response => {
+      const json = await response.json();
+      if (!response.ok) {
+        throw json;
+      }
+
+      return json;
+    })
+      .then(data => {
+        answer.innerHTML = `Answer: ${data.result}`;
+      })
+      .catch(error => alert(error.message));
+  });
+</script>
+</html>
